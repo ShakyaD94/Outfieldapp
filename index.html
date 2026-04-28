@@ -2786,7 +2786,17 @@
                 }
             }
 
-            function completeActiveRoute() { activeRouteStops = []; completedRouteStops.clear(); activeRouteName = ""; updateRouteState(); showToast("Route marked as completed!"); navigateTo('screen-dashboard'); }
+            function completeActiveRoute() { 
+                activeRouteStops = []; 
+                plannedRouteStops = []; // Clear planned stops so the "Route Planned" card hides
+                completedRouteStops.clear(); 
+                activeRouteName = ""; 
+                isRouteOptimized = false;
+                updateRouteState(); 
+                updateRouteMapAndList();
+                showToast("Route marked as completed!"); 
+                navigateTo('screen-dashboard'); 
+            }
 
 
             // ---------- PLACE ACTIVITY LOGIC -----------
