@@ -284,6 +284,11 @@
                 position: relative;
             }
             .leaflet-bottom { padding-bottom: 80px; }
+            
+            /* Customizing Leaflet Popups to match app theme */
+            .leaflet-popup-content-wrapper { border-radius: 16px !important; box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important; padding: 0 !important; border: 1px solid #f1f5f9; }
+            .leaflet-popup-content { margin: 14px !important; width: auto !important; min-width: 170px; }
+            .leaflet-popup-tip-container { margin-top: -1px; }
         </style>
     </head>
     <body>
@@ -294,6 +299,96 @@
 
             <div id="menu-overlay" onclick="toggleMenu()"></div>
             
+            <!-- Map Filter Drawer Overlay & Container -->
+            <div id="map-filter-overlay" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm z-[1050] hidden opacity-0 transition-opacity duration-300" onclick="toggleMapFilter()"></div>
+            <div id="map-filter-drawer" class="absolute top-0 left-0 h-full w-[85%] bg-white z-[1060] transform -translate-x-full transition-transform duration-300 shadow-[20px_0_50px_rgba(0,0,0,0.15)] flex flex-col">
+                <!-- Header -->
+                <div class="px-5 pt-12 pb-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleMapFilter()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 active:scale-95 transition-transform border border-slate-100">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <h2 class="text-lg font-black text-slate-800 tracking-tight">Filters</h2>
+                    </div>
+                    <button onclick="clearMapFilters()" class="text-[10px] font-black text-indigo-600 uppercase tracking-wider active:opacity-70 transition-opacity bg-indigo-50 px-3 py-1.5 rounded-lg">Reset</button>
+                </div>
+
+                <!-- Scrollable Filter Content -->
+                <div class="flex-1 overflow-y-auto px-5 py-5 space-y-6 pb-6 hide-scrollbar bg-slate-50/50">
+                    
+                    <!-- Section 1: Availability -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-regular fa-clock text-slate-300"></i> Availability</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Open Now</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Closing Soon</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Closed</button>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Distance -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-location-arrow text-slate-300"></i> Distance</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">&lt;1 km</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">&lt;3 km</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">&lt;5 km</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">&lt;10 km</button>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Cuisine -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-utensils text-slate-300"></i> Cuisine</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Japanese</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Chinese</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">North Indian</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Italian</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Multi-cuisine</button>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Lead Status -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-fire text-slate-300"></i> Lead Status</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">New Prospect</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Follow-up Due</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Hot Lead</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Warm</button>
+                            <button onclick="toggleFilterChip(this, 'multi')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Low Priority</button>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Last Visit -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-calendar-check text-slate-300"></i> Last Visit</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Not visited in 7 days</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Not visited in 15 days</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Never visited</button>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Ownership -->
+                    <div>
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-user-tag text-slate-300"></i> Ownership</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Assigned to Me</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">Unassigned</button>
+                            <button onclick="toggleFilterChip(this, 'single')" class="filter-chip bg-slate-50 border border-slate-200 text-slate-600 px-3.5 py-2 rounded-xl text-[11px] font-bold cursor-pointer transition-all shadow-sm active:scale-95">My Team</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sticky Bottom Action Bar -->
+                <div class="p-5 border-t border-slate-100 bg-white shrink-0 pb-8 flex flex-col gap-3 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                    <button onclick="applyMapFilters()" class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black uppercase tracking-widest text-[11px] shadow-[0_8px_20px_rgba(99,102,241,0.3)] active:scale-95 transition-transform flex justify-center items-center gap-2"><i class="fa-solid fa-check text-white/80"></i> Apply Filters</button>
+                    <button onclick="clearMapFilters()" class="w-full text-center text-[11px] font-black text-slate-400 uppercase tracking-wider py-1.5 active:text-slate-600 transition-colors">Clear All</button>
+                </div>
+            </div>
+
             <!-- Bottom Sheet Overlay & Container -> Now a Centered Modal -->
             <div id="bottom-sheet-overlay" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] hidden transition-opacity opacity-0" onclick="closeBottomSheet()"></div>
             <div id="bottom-sheet" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] bg-white rounded-[2rem] z-[1010] transition-all duration-300 opacity-0 scale-95 pointer-events-none flex flex-col max-h-[85%] shadow-2xl">
@@ -761,7 +856,7 @@
                     <div class="flex gap-2">
                         <button onclick="findNearbyGeneral()" class="w-10 h-10 rounded-[14px] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"><i class="fa-solid fa-location-crosshairs"></i></button>
                         <button onclick="toggleMapList()" class="w-10 h-10 rounded-[14px] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"><i id="map-toggle-icon" class="fa-solid fa-map"></i></button>
-                        <button class="w-10 h-10 rounded-[14px] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"><i class="fa-solid fa-filter"></i></button>
+                        <button onclick="toggleMapFilter()" class="w-10 h-10 rounded-[14px] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 active:scale-95 transition-transform"><i class="fa-solid fa-filter"></i></button>
                     </div>
                 </div>
 
@@ -1107,21 +1202,28 @@
                 <div class="scroll-container relative z-20 pb-32 pt-12">
                     
                     <!-- Fixed Header matching new design -->
-                    <div class="px-6 flex items-start gap-4 mb-4">
-                        <button onclick="navigateBackFromPlace()" class="w-11 h-11 shrink-0 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center text-slate-700 active:bg-slate-50 transition-colors"><i class="fa-solid fa-arrow-left"></i></button>
-                        <div class="flex-1 min-w-0 pt-0.5">
-                            <h3 id="activity-place-name-shared" class="text-[22px] font-black text-[#0D0F14] tracking-tight leading-tight mb-1 truncate">Place Name</h3>
-                            <p id="activity-place-addr-shared" class="text-[12px] font-medium text-slate-500 mb-2 truncate">Address • 0.0 mi</p>
-                            <div class="flex flex-wrap items-center gap-2 mt-2">
-                                <div id="activity-place-tags-shared" class="flex flex-wrap gap-1.5"></div>
-                                <!-- 3D Tactile Nearby Button -->
-                                <button onclick="findNearbyCurrentPlace()" class="bg-gradient-to-b from-blue-500 to-blue-600 border-b-[3px] border-blue-800 text-white px-3.5 py-1.5 rounded-[10px] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_4px_10px_rgba(59,130,246,0.4)] active:border-b-0 active:translate-y-[3px] active:shadow-sm transition-all">
-                                    <i class="fa-solid fa-location-crosshairs text-[11px] drop-shadow-sm"></i> NEARBY
-                                </button>
+                    <div class="px-6 mb-4">
+                        <div class="flex items-start gap-4 mb-3">
+                            <button onclick="navigateBackFromPlace()" class="w-11 h-11 shrink-0 rounded-2xl bg-white border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center text-slate-700 active:bg-slate-50 transition-colors"><i class="fa-solid fa-arrow-left"></i></button>
+                            <div class="flex-1 min-w-0 pt-0.5">
+                                <h3 id="activity-place-name-shared" class="text-[22px] font-black text-[#0D0F14] tracking-tight leading-tight mb-1 truncate">Place Name</h3>
+                                <p id="activity-place-addr-shared" class="text-[12px] font-medium text-slate-500 mb-1.5 truncate">Address • 0.0 mi</p>
+                                <div id="activity-place-tags-shared" class="flex flex-wrap gap-1.5 mt-1"></div>
+                            </div>
+                            <div class="shrink-0">
+                                <div class="w-[60px] h-[60px] rounded-2xl bg-slate-50 shadow-sm overflow-hidden border border-slate-100"><img id="activity-place-img-shared" src="" alt="Place" class="w-full h-full object-cover"></div>
                             </div>
                         </div>
-                        <div class="shrink-0">
-                            <div class="w-[60px] h-[60px] rounded-2xl bg-slate-50 shadow-sm overflow-hidden border border-slate-100"><img id="activity-place-img-shared" src="" alt="Place" class="w-full h-full object-cover"></div>
+
+                        <div class="flex items-center gap-2.5">
+                            <!-- Simple Nearby Button -->
+                            <button onclick="findNearbyCurrentPlace()" class="flex-1 bg-blue-500 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                                <i class="fa-solid fa-location-crosshairs text-[12px]"></i> NEARBY
+                            </button>
+                            <!-- Simple Add to Route Button -->
+                            <button id="activity-add-route-btn-shared" onclick="addSinglePlaceToRoute(currentPlaceId)" class="flex-1 bg-amber-500 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                                <i class="fa-solid fa-route text-[12px]"></i> ADD TO ROUTE
+                            </button>
                         </div>
                     </div>
 
@@ -1504,6 +1606,15 @@
                 menu.style.top = top + 'px';
                 menu.style.left = left + 'px';
                 
+                const isAdded = plannedRouteStops.find(s => s.id === placeId) || activeRouteStops.find(s => s.id === placeId);
+                document.getElementById('gco-btn-route').innerHTML = isAdded ? `
+                    <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-check"></i></div>
+                    <span>Added to route</span>
+                ` : `
+                    <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-route"></i></div>
+                    <span>Add to route</span>
+                `;
+                
                 document.getElementById('gco-btn-nearby').onclick = () => {
                     closeGlobalCardOptions();
                     setTimeout(() => findNearbyCurrentPlace(), 300);
@@ -1533,17 +1644,27 @@
             function addSinglePlaceToRoute(id) {
                 const place = getPlaceById(id);
                 if(!place) return;
-                if (!plannedRouteStops.find(s => s.id === id)) { 
+                
+                if (activeRouteStops.find(s => s.id === id)) {
+                    showToast("Already active in current route");
+                    return;
+                }
+
+                const existingIdx = plannedRouteStops.findIndex(s => s.id === id);
+                if (existingIdx === -1) { 
                     let lat = place.lat || (37.7833 + (Math.sin(place.id) * 0.06)); 
                     let lng = place.lng || (-122.4042 + (Math.cos(place.id) * 0.06)); 
                     plannedRouteStops.push({...place, lat, lng}); 
                     showToast("Added to route!");
-                    isRouteOptimized = false; 
-                    updateRouteMapAndList(); 
-                    updateRouteState();
                 } else {
-                    showToast("Already in route");
+                    plannedRouteStops.splice(existingIdx, 1);
+                    showToast("Removed from route");
                 }
+                
+                isRouteOptimized = false; 
+                updateRouteMapAndList(); 
+                updateRouteState();
+                if(currentPlaceId === id) updatePlaceActivityRouteBtn();
             }
 
             // ================= GLOBAL INITIALIZATION =================
@@ -1703,6 +1824,58 @@
             function renderDashboardDrilldown(period) { const list = document.getElementById('drilldown-places-list'); if(list) { let html = ''; for(let i=1; i<=3; i++) { html += `<div onclick="openPlaceActivity(${i})" class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center justify-between cursor-pointer active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm">${i}</div><div><h4 class="text-sm font-black text-slate-800">Place ${i}</h4><p class="text-[10px] font-medium text-slate-500">Visited 3 times</p></div></div><i class="fa-solid fa-chevron-right text-slate-300"></i></div>`; } list.innerHTML = html; } }
 
             // ================= FIND SCREEN & MAP =================
+            function toggleMapFilter() {
+                const drawer = document.getElementById('map-filter-drawer');
+                const overlay = document.getElementById('map-filter-overlay');
+                
+                if (drawer.classList.contains('-translate-x-full')) {
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                    drawer.classList.remove('-translate-x-full');
+                } else {
+                    overlay.classList.add('opacity-0');
+                    drawer.classList.add('-translate-x-full');
+                    setTimeout(() => overlay.classList.add('hidden'), 300);
+                }
+            }
+
+            function toggleFilterChip(btn, type) {
+                const isSelected = btn.classList.contains('bg-indigo-50');
+                
+                if (type === 'single') {
+                    // Clear siblings
+                    const siblings = btn.parentElement.querySelectorAll('button');
+                    siblings.forEach(s => {
+                        s.classList.remove('bg-indigo-50', 'border-indigo-200', 'text-indigo-700', 'ring-1', 'ring-indigo-400');
+                        s.classList.add('bg-slate-50', 'border-slate-200', 'text-slate-600');
+                    });
+                    if (isSelected) return; // If it was already selected, leave it cleared
+                }
+                
+                if (!isSelected) {
+                    btn.classList.remove('bg-slate-50', 'border-slate-200', 'text-slate-600');
+                    btn.classList.add('bg-indigo-50', 'border-indigo-200', 'text-indigo-700', 'ring-1', 'ring-indigo-400');
+                } else {
+                    btn.classList.remove('bg-indigo-50', 'border-indigo-200', 'text-indigo-700', 'ring-1', 'ring-indigo-400');
+                    btn.classList.add('bg-slate-50', 'border-slate-200', 'text-slate-600');
+                }
+            }
+
+            function clearMapFilters() {
+                const chips = document.querySelectorAll('#map-filter-drawer .filter-chip');
+                chips.forEach(s => {
+                    s.classList.remove('bg-indigo-50', 'border-indigo-200', 'text-indigo-700', 'ring-1', 'ring-indigo-400');
+                    s.classList.add('bg-slate-50', 'border-slate-200', 'text-slate-600');
+                });
+            }
+
+            function applyMapFilters() {
+                showToast('Filters Applied!');
+                toggleMapFilter();
+                // Simulating filtering trigger on map
+                renderFindList(document.getElementById('map-search-input')?.value || '');
+            }
+
             function initOrUpdateMap() {
                 if (!liveMap) {
                     liveMap = L.map('live-map-container', { zoomControl: false }).setView([37.7833, -122.4042], 14);
@@ -1712,7 +1885,10 @@
                     deepuMarker.bindPopup('<b class="font-bold text-slate-800">Bruce Wayne</b><br><span class="text-xs text-slate-500">Current Location</span>').openPopup();
                     L.control.zoom({ position: 'topright' }).addTo(liveMap);
                 }
-                setTimeout(() => liveMap.invalidateSize(), 150);
+                setTimeout(() => { 
+                    liveMap.invalidateSize(); 
+                    if (findViewMode === 'map') renderFindList(document.getElementById('map-search-input')?.value || '');
+                }, 150);
             }
 
             function updateMapMarkers(places) {
@@ -1724,6 +1900,22 @@
                     if (p.lat && p.lng) {
                         const customPin = L.divIcon({ html: `<div class="relative"><div class="w-8 h-8 rounded-full border-2 border-white bg-rose-500 shadow-md flex items-center justify-center text-white text-[10px] z-10 relative"><i class="fa-solid fa-store"></i></div><div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-rose-500 absolute -bottom-[7px] left-1/2 -translate-x-1/2 z-10"></div></div>`, className: 'bg-transparent border-0', iconSize: [32, 42], iconAnchor: [16, 42] });
                         const marker = L.marker([p.lat, p.lng], {icon: customPin}).addTo(liveMap);
+                        
+                        // Smart Popup with Add to Route Button
+                        const popupHtml = `
+                        <div class="text-left w-44">
+                            <h4 class="font-black text-slate-800 text-[14px] truncate leading-tight mb-0.5">${p.name}</h4>
+                            <p class="text-[10px] text-slate-500 font-medium mb-3 truncate"><i class="fa-solid fa-location-arrow text-indigo-400 mr-1 text-[9px]"></i>${p.distance || p.dist || '0.0 mi'} • ${p.neighborhood || p.city}</p>
+                            <button onclick="addSinglePlaceToRoute(${p.id}); if(liveMap) liveMap.closePopup();" class="w-full bg-amber-500 text-white font-black uppercase tracking-widest text-[9px] py-2 rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-route"></i> Add to Route
+                            </button>
+                        </div>`;
+                        
+                        marker.bindPopup(popupHtml, { closeButton: false, offset: [0, -35] });
+                        
+                        // Add hover interaction for desktop, while retaining click for mobile
+                        marker.on('mouseover', function(e) { this.openPopup(); });
+
                         searchMarkers.push(marker); bounds.extend([p.lat, p.lng]);
                     }
                 });
@@ -1733,8 +1925,26 @@
             function toggleMapList() {
                 findViewMode = findViewMode === 'list' ? 'map' : 'list';
                 const listEl = document.getElementById('find-list-view'), mapEl = document.getElementById('live-map-container'), iconEl = document.getElementById('map-toggle-icon');
-                if (findViewMode === 'map') { listEl.classList.add('hidden'); mapEl.classList.remove('hidden'); iconEl.classList.remove('fa-map'); iconEl.classList.add('fa-list-ul'); if (liveMap) setTimeout(() => liveMap.invalidateSize(), 100); else initOrUpdateMap(); } 
-                else { mapEl.classList.add('hidden'); listEl.classList.remove('hidden'); iconEl.classList.remove('fa-list-ul'); iconEl.classList.add('fa-map'); }
+                if (findViewMode === 'map') { 
+                    listEl.classList.add('hidden'); 
+                    mapEl.classList.remove('hidden'); 
+                    iconEl.classList.remove('fa-map'); 
+                    iconEl.classList.add('fa-list-ul'); 
+                    if (liveMap) {
+                        setTimeout(() => { 
+                            liveMap.invalidateSize(); 
+                            renderFindList(document.getElementById('map-search-input')?.value || ''); 
+                        }, 100); 
+                    } else {
+                        initOrUpdateMap(); 
+                    }
+                } 
+                else { 
+                    mapEl.classList.add('hidden'); 
+                    listEl.classList.remove('hidden'); 
+                    iconEl.classList.remove('fa-list-ul'); 
+                    iconEl.classList.add('fa-map'); 
+                }
             }
 
             function clearFindSearch() { const input = document.getElementById('map-search-input'); if(input) input.value = ''; renderFindList(''); }
@@ -1743,7 +1953,7 @@
                     const query = e.target.value.trim(); e.target.blur(); if (!query) { renderFindList(''); return; }
                     const screenMap = document.getElementById('screen-map'), existingLoader = document.getElementById('ai-search-loader');
                     if(existingLoader) existingLoader.remove();
-                    screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute top-[140px] bottom-[80px] left-0 right-0 z-[500] bg-[#f8f9fa]/95 backdrop-blur-sm flex flex-col items-center justify-center screen-fade"><div class="relative w-16 h-16 mb-6"><div class="absolute inset-0 border-4 border-slate-200 rounded-full"></div><div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div><i class="fa-solid fa-wand-magic-sparkles absolute inset-0 flex items-center justify-center text-indigo-500 text-xl"></i></div><h3 class="text-[18px] font-black text-slate-800 mb-1 tracking-tight">Scanning...</h3></div>`);
+                    screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute inset-0 z-[500] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center screen-fade"><div class="bg-white rounded-[2rem] p-8 shadow-2xl flex flex-col items-center justify-center w-[75%] max-w-[280px] text-center"><div class="relative w-16 h-16 mb-5 flex items-center justify-center"><div class="absolute inset-0 bg-indigo-400 rounded-full animate-ping opacity-20"></div><div class="absolute inset-2 bg-indigo-400 rounded-full animate-ping opacity-40" style="animation-delay: 0.2s"></div><div class="relative w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(79,70,229,0.4)]"><i class="fa-solid fa-wand-magic-sparkles text-white text-lg"></i></div></div><h3 class="text-[18px] font-black text-slate-800 mb-1.5 tracking-tight">Scanning...</h3><p class="text-[11px] font-bold text-slate-500 leading-relaxed">Searching for<br><span class="text-indigo-600">"${query}"</span></p></div></div>`);
                     setTimeout(() => { document.getElementById('ai-search-loader')?.remove(); renderFindList(query); }, 5000);
                 }
             }
@@ -1753,7 +1963,7 @@
                 const searchInput = document.getElementById('map-search-input'), query = 'Nearby ' + place.name; searchInput.value = query;
                 const screenMap = document.getElementById('screen-map'), existingLoader = document.getElementById('ai-search-loader');
                 if(existingLoader) existingLoader.remove();
-                screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute top-[140px] bottom-[80px] left-0 right-0 z-[500] bg-[#f8f9fa]/95 backdrop-blur-sm flex flex-col items-center justify-center screen-fade"><div class="relative w-16 h-16 mb-6"><div class="absolute inset-0 border-4 border-slate-200 rounded-full"></div><div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div><i class="fa-solid fa-location-crosshairs absolute inset-0 flex items-center justify-center text-indigo-500 text-xl"></i></div><h3 class="text-[18px] font-black text-slate-800 mb-1 tracking-tight">Finding Nearby...</h3><p class="text-xs font-bold text-slate-500">Locating places around ${place.name}</p></div>`);
+                screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute inset-0 z-[500] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center screen-fade"><div class="bg-white rounded-[2rem] p-8 shadow-2xl flex flex-col items-center justify-center w-[75%] max-w-[280px] text-center"><div class="relative w-16 h-16 mb-5 flex items-center justify-center"><div class="absolute inset-0 bg-indigo-400 rounded-full animate-ping opacity-20"></div><div class="absolute inset-2 bg-indigo-400 rounded-full animate-ping opacity-40" style="animation-delay: 0.2s"></div><div class="relative w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(79,70,229,0.4)]"><i class="fa-solid fa-location-crosshairs text-white text-lg"></i></div></div><h3 class="text-[18px] font-black text-slate-800 mb-1.5 tracking-tight">Finding Nearby</h3><p class="text-[11px] font-bold text-slate-500 leading-relaxed">Locating places around<br><span class="text-indigo-600">${place.name}</span></p></div></div>`);
                 setTimeout(() => { document.getElementById('ai-search-loader')?.remove(); renderFindList(query); }, 1200);
             }
 
@@ -1762,7 +1972,7 @@
                 searchInput.value = 'Nearby places';
                 const screenMap = document.getElementById('screen-map'), existingLoader = document.getElementById('ai-search-loader');
                 if(existingLoader) existingLoader.remove();
-                screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute top-[140px] bottom-[80px] left-0 right-0 z-[500] bg-[#f8f9fa]/95 backdrop-blur-sm flex flex-col items-center justify-center screen-fade"><div class="relative w-16 h-16 mb-6"><div class="absolute inset-0 border-4 border-slate-200 rounded-full"></div><div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div><i class="fa-solid fa-location-crosshairs absolute inset-0 flex items-center justify-center text-indigo-500 text-xl"></i></div><h3 class="text-[18px] font-black text-slate-800 mb-1 tracking-tight">Finding Nearby...</h3><p class="text-xs font-bold text-slate-500">Locating places around your location</p></div>`);
+                screenMap.insertAdjacentHTML('beforeend', `<div id="ai-search-loader" class="absolute inset-0 z-[500] bg-slate-900/30 backdrop-blur-sm flex items-center justify-center screen-fade"><div class="bg-white rounded-[2rem] p-8 shadow-2xl flex flex-col items-center justify-center w-[75%] max-w-[280px] text-center"><div class="relative w-16 h-16 mb-5 flex items-center justify-center"><div class="absolute inset-0 bg-indigo-400 rounded-full animate-ping opacity-20"></div><div class="absolute inset-2 bg-indigo-400 rounded-full animate-ping opacity-40" style="animation-delay: 0.2s"></div><div class="relative w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(79,70,229,0.4)]"><i class="fa-solid fa-location-crosshairs text-white text-lg"></i></div></div><h3 class="text-[18px] font-black text-slate-800 mb-1.5 tracking-tight">Finding Nearby</h3><p class="text-[11px] font-bold text-slate-500 leading-relaxed">Locating places around<br><span class="text-indigo-600">your current location</span></p></div></div>`);
                 setTimeout(() => { document.getElementById('ai-search-loader')?.remove(); renderFindList('nearby'); }, 1200);
             }
 
@@ -2201,9 +2411,9 @@
                         const last = getLastVisitMock(p.id);
                         
                         listHtml += `
-                        <div class="p-3 rounded-[1.25rem] border border-slate-100 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)] mb-3 relative overflow-hidden flex flex-col gap-2.5">
+                        <div onclick="openPlaceActivity(${p.id}, 'screen-add-stops')" class="cursor-pointer active:scale-[0.98] transition-all p-3 rounded-[1.25rem] border border-slate-100 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md mb-3 relative overflow-hidden flex flex-col gap-2.5">
                             <div class="absolute top-3 right-3 z-30">
-                                <button onclick="toggleRouteStop(${p.id})" id="add-stop-btn-${p.id}" class="w-8 h-8 flex items-center justify-center rounded-full text-[14px] transition-colors shadow-sm ${isAdded ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}">${isAdded ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-plus"></i>'}</button>
+                                <button onclick="event.stopPropagation(); toggleRouteStop(${p.id})" id="add-stop-btn-${p.id}" class="w-8 h-8 flex items-center justify-center rounded-full text-[14px] transition-colors shadow-sm ${isAdded ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}">${isAdded ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-plus"></i>'}</button>
                             </div>
                             <div class="flex gap-3">
                                 <div class="relative w-14 h-14 rounded-xl shadow-sm overflow-hidden shrink-0 border border-slate-100"><img src="${p.img}" class="w-full h-full object-cover"></div>
@@ -2330,8 +2540,10 @@
                     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution: '' }).addTo(routePlannerMap);
                     L.control.zoom({ position: 'topright' }).addTo(routePlannerMap);
                 }
-                setTimeout(() => routePlannerMap.invalidateSize(), 150);
-                updateRouteMapAndList();
+                setTimeout(() => { 
+                    routePlannerMap.invalidateSize(); 
+                    updateRouteMapAndList(); 
+                }, 150);
             }
 
             function toggleRouteView(view) {
@@ -2341,7 +2553,12 @@
                     listBtn.className = "flex-1 py-1.5 text-[12px] font-bold rounded-[10px] text-slate-500 transition-all";
                     mapEl.classList.remove('hidden');
                     listEl.classList.add('hidden');
-                    if(routePlannerMap) setTimeout(() => routePlannerMap.invalidateSize(), 150);
+                    if(routePlannerMap) {
+                        setTimeout(() => { 
+                            routePlannerMap.invalidateSize(); 
+                            updateRouteMapAndList(); 
+                        }, 150);
+                    }
                 } else {
                     listBtn.className = "flex-1 py-1.5 text-[12px] font-bold rounded-[10px] bg-white shadow-sm text-slate-800 transition-all";
                     mapBtn.className = "flex-1 py-1.5 text-[12px] font-bold rounded-[10px] text-slate-500 transition-all";
@@ -2475,8 +2692,22 @@
                     }
                 }
 
-                updatePlaceActivityHeaders(); updateSiteActivityKpis(placeId); renderPlaceActivityLogs(); renderLastVisitSummary(); renderPlaceContacts(); renderPlaceDocuments(); switchPlaceTab('actions'); updateTimerDisplay(); updateCheckInUI();
+                updatePlaceActivityHeaders(); updateSiteActivityKpis(placeId); renderPlaceActivityLogs(); renderLastVisitSummary(); renderPlaceContacts(); renderPlaceDocuments(); switchPlaceTab('actions'); updateTimerDisplay(); updateCheckInUI(); updatePlaceActivityRouteBtn();
                 closeBottomSheet(); navigateTo('screen-place-activity');
+            }
+
+            function updatePlaceActivityRouteBtn() {
+                const btn = document.getElementById('activity-add-route-btn-shared');
+                if (!btn) return;
+                const isAdded = plannedRouteStops.find(s => s.id === currentPlaceId) || activeRouteStops.find(s => s.id === currentPlaceId);
+                
+                if (isAdded) {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-[12px]"></i> ADDED';
+                    btn.className = "flex-1 bg-emerald-500 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all";
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-route text-[12px]"></i> ADD TO ROUTE';
+                    btn.className = "flex-1 bg-amber-500 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all";
+                }
             }
 
             function hideTabSwipeHint() {
