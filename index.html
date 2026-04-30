@@ -649,29 +649,6 @@
 
                 <!-- Reminders Tab Content -->
                 <div id="g-tab-content-reminders" class="hidden flex-1 scroll-container p-6 pb-32">
-                    <div class="bg-white border border-slate-200 rounded-[1.25rem] p-4 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Create Reminder</p>
-                        
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Reminder Title</label>
-                        <input type="text" id="reminder-title" placeholder="e.g. Call back regarding pricing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none mb-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-800">
-
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Date & Time</label>
-                        <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all mb-3 shadow-sm relative">
-                            <input type="datetime-local" id="reminder-datetime" class="w-full bg-transparent pl-3 pr-8 py-3 text-[13px] font-bold text-slate-800 outline-none date-time-input">
-                            <i class="fa-regular fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                        </div>
-
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Related Site</label>
-                        <select id="reminder-site" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-600 mb-3">
-                            <!-- Populated via JS -->
-                        </select>
-
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Notes</label>
-                        <textarea id="reminder-notes" rows="2" placeholder="Add any details..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none mb-4 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none text-slate-800"></textarea>
-
-                        <button onclick="saveReminder()" class="w-full py-4 rounded-xl bg-indigo-600 text-white font-black uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-sm">Save Reminder</button>
-                    </div>
-
                     <h3 class="text-[12px] font-black text-slate-800 uppercase tracking-widest mb-3 pl-1">Active Reminders</h3>
                     <div id="reminders-list" class="space-y-3">
                         <!-- Injected by JS -->
@@ -680,6 +657,11 @@
 
                 <!-- Floating Action Button for New Tasks (3D Style) -->
                 <button id="global-add-task-fab" onclick="openAddTaskSheet()" class="absolute bottom-32 right-6 w-14 h-14 bg-gradient-to-b from-rose-50 to-rose-100 text-rose-600 border-b-[4px] border-rose-200 rounded-[18px] shadow-[0_8px_20px_rgba(225,29,72,0.2)] flex items-center justify-center transition-all active:border-b-0 active:translate-y-[4px] z-[100]">
+                    <i class="fa-solid fa-plus text-2xl font-black drop-shadow-sm"></i>
+                </button>
+                
+                <!-- Floating Action Button for New Reminders (3D Style) -->
+                <button id="global-add-reminder-fab" onclick="openAddReminderSheet()" class="hidden absolute bottom-32 right-6 w-14 h-14 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-600 border-b-[4px] border-blue-200 rounded-[18px] shadow-[0_8px_20px_rgba(59,130,246,0.2)] flex items-center justify-center transition-all active:border-b-0 active:translate-y-[4px] z-[100]">
                     <i class="fa-solid fa-plus text-2xl font-black drop-shadow-sm"></i>
                 </button>
             </div>
@@ -1589,10 +1571,56 @@
             let placeDocuments = new Map();
             placeDocuments.set(1, [{ id: 101, name: 'Menu_Pricing_v2.pdf', date: 'Apr 5, 2026', size: '2.4 MB', type: 'pdf' }, { id: 102, name: 'Floor_Plan_Sketch.jpg', date: 'Apr 2, 2026', size: '1.1 MB', type: 'image' }]);
             
+            let todayMock = new Date();
+            todayMock.setHours(9, 0, 0, 0);
+
             let activityLogs = [
-                { type: "email", to: "manager@xyz.com", subject: "Checking in - Plum POS", status: "Opened", preview: "We would like to invite you...", placeName: "Blue Bottle Cafe", checkInTime: new Date(new Date().setHours(17, 21, 0)) },
-                { type: "call", name: "Bruce Wayne", placeName: "Blue Bottle Cafe", durationStr: "5m 20s", outcome: "Interested", note: "Attempted phone call to client.", checkInTime: new Date(new Date().setHours(17, 21, 0)) },
-                { type: "visit", placeId: 1, placeName: "Blue Bottle Cafe", checkInTime: new Date(Date.now() - 7200000), checkOutTime: new Date(Date.now() - 5400000), durationStr: "30m 0s", note: "Met with the owner...", attachments: ["https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=300&q=80"] }
+                { 
+                    type: "visit", 
+                    placeId: 5, 
+                    placeName: "Pizza My Heart", 
+                    checkInTime: new Date(todayMock.getTime() + 5.5 * 3600000), 
+                    checkOutTime: new Date(todayMock.getTime() + 6.25 * 3600000), 
+                    durationStr: "45m 0s", 
+                    note: "Met with the regional manager. They are unhappy with current Toast pricing. Arranged a deep-dive demo for next Tuesday.", 
+                    surveySnapshot: { 'qPOS': { answer: 'Toast' }, 'qTemp': { answer: 'Hot lead' }, 'qObj': { answer: 'Pricing seems high' }, 'qOutcome': { answer: 'Immediate interest' } } 
+                },
+                { 
+                    type: "email", 
+                    to: "director@techhub.com", 
+                    subject: "Plum POS Enterprise Proposal", 
+                    status: "Sent", 
+                    placeName: "TechHub Office", 
+                    checkInTime: new Date(todayMock.getTime() + 4.5 * 3600000), 
+                    note: "Sent the revised quote with custom enterprise pricing tier." 
+                },
+                { 
+                    type: "call", 
+                    name: "Contact", 
+                    placeName: "CloudKitchens", 
+                    durationStr: "12m 40s", 
+                    outcome: "Demo Scheduled", 
+                    note: "Discussed KDS integration. They operate 5 ghost kitchens and need robust ticket routing. Scheduled demo.", 
+                    checkInTime: new Date(todayMock.getTime() + 2 * 3600000) 
+                },
+                { 
+                    type: "task", 
+                    placeName: "Zenith Cowork", 
+                    status: "Completed", 
+                    note: "Completed action item: Send pricing sheet and hardware specifications.", 
+                    checkInTime: new Date(todayMock.getTime() + 1.5 * 3600000) 
+                },
+                { 
+                    type: "visit", 
+                    placeId: 1, 
+                    placeName: "Blue Bottle Cafe", 
+                    checkInTime: new Date(todayMock.getTime()), 
+                    checkOutTime: new Date(todayMock.getTime() + 0.5 * 3600000), 
+                    durationStr: "30m 0s", 
+                    note: "Met with the owner. Hardware looks outdated, messy cables under the counter. Very receptive to the handheld POS pitch.", 
+                    attachments: ["https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=300&q=80"], 
+                    surveySnapshot: { 'qMode': { answer: 'Contact checklist' }, 'qStations': { answer: 'Fixed: 2, Handhelds: 0' }, 'qOutcome': { answer: 'Follow-up scheduled' } } 
+                }
             ];
 
             // ================= GLOBAL STATE =================
@@ -1733,7 +1761,7 @@
             // ================= GLOBAL INITIALIZATION =================
             window.onload = function() {
                 renderMyDashboard(); renderDashboardPlanning(); renderTasksList(); renderCalendarMonth(); renderSelectedDateEvents(); renderAllEventsGrouped(); renderTodayActivityLogs(); updateDashboardRouteCards();
-                populateReminderDropdown(); renderRemindersList();
+                renderRemindersList();
                 
                 const appFrame = document.querySelector('.mobile-frame') || document.body;
                 appFrame.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
@@ -2883,12 +2911,28 @@
             }
 
             function createLogHtml(log) {
-                let icon = '', bg = '', title = '';
-                if(log.type === 'call') { icon = 'phone'; bg = 'bg-blue-100 text-blue-600'; title = `Call • ${log.outcome}`; } else if(log.type === 'email') { icon = 'envelope'; bg = 'bg-purple-100 text-purple-600'; title = `Email • ${log.status}`; } else if(log.type === 'visit') { icon = 'location-dot'; bg = 'bg-green-100 text-green-600'; title = `Visit • ${log.durationStr}`; } else { icon = 'clipboard-check'; bg = 'bg-slate-100 text-slate-600'; title = `Activity`; }
-                let html = `<div class="bg-white rounded-2xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 relative mb-3"><div class="flex gap-3 mb-2"><div class="w-8 h-8 rounded-full ${bg} flex items-center justify-center shrink-0"><i class="fa-solid fa-${icon} text-xs"></i></div><div><h4 class="text-sm font-black text-slate-800 leading-tight">${title}</h4><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${formatTime(log.checkInTime)}</p></div></div>`;
-                if(log.note) html += `<p class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 mb-2">${log.note}</p>`;
-                if(log.surveySnapshot) { html += `<div class="mt-3 space-y-1 bg-indigo-50/30 p-3 rounded-xl border border-indigo-50">`; for(const [k, v] of Object.entries(log.surveySnapshot)) { html += `<div class="flex justify-between items-center text-[10px]"><span class="text-slate-500 font-medium">${k.replace('q','')}</span><span class="font-bold text-slate-700 truncate max-w-[60%] text-right">${v.answer}</span></div>`; } html += `</div>`; }
-                html += `</div>`; return html;
+                let icon = '', bg = '', typeLabel = '';
+                if(log.type === 'call') { icon = 'phone'; bg = 'bg-blue-100 text-blue-600'; typeLabel = `Call • ${log.outcome}`; } 
+                else if(log.type === 'email') { icon = 'envelope'; bg = 'bg-purple-100 text-purple-600'; typeLabel = `Email • ${log.status}`; } 
+                else if(log.type === 'visit') { icon = 'location-dot'; bg = 'bg-green-100 text-green-600'; typeLabel = `Visit • ${log.durationStr}`; } 
+                else if(log.type === 'task') { icon = 'check-double'; bg = 'bg-amber-100 text-amber-600'; typeLabel = `Task • ${log.status}`; }
+                else { icon = 'clipboard-check'; bg = 'bg-slate-100 text-slate-600'; typeLabel = `Activity`; }
+                
+                let html = `
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative mb-3 flex items-start gap-3 active:scale-[0.98] transition-transform cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-${icon} text-[14px]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <h4 class="text-[14px] font-black text-slate-800 leading-tight truncate pr-2">${log.placeName || 'General Activity'}</h4>
+                            <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap mt-0.5">${formatTime(log.checkInTime)}</span>
+                        </div>
+                        <p class="text-[10px] text-indigo-500 font-black uppercase tracking-widest mb-1 truncate">${typeLabel}</p>
+                        ${log.note ? `<p class="text-[12px] text-slate-500 font-medium truncate">${log.note}</p>` : ''}
+                    </div>
+                </div>`;
+                return html;
             }
 
             function switchPlaceTab(tab) {
@@ -3493,6 +3537,7 @@
                 const contentTasks = document.getElementById('g-tab-content-tasks');
                 const contentRems = document.getElementById('g-tab-content-reminders');
                 const addBtnFab = document.getElementById('global-add-task-fab');
+                const addRemFab = document.getElementById('global-add-reminder-fab');
 
                 if (tab === 'tasks') {
                     btnTasks.className = "flex-1 py-3 text-[13px] font-black text-indigo-600 border-b-[3px] border-indigo-600 transition-colors";
@@ -3500,12 +3545,14 @@
                     contentTasks.classList.remove('hidden');
                     contentRems.classList.add('hidden');
                     if (addBtnFab) addBtnFab.classList.remove('hidden');
+                    if (addRemFab) addRemFab.classList.add('hidden');
                 } else {
                     btnRems.className = "flex-1 py-3 text-[13px] font-black text-indigo-600 border-b-[3px] border-indigo-600 transition-colors";
                     btnTasks.className = "flex-1 py-3 text-[13px] font-bold text-slate-400 border-b-[3px] border-transparent hover:text-slate-600 transition-colors";
                     contentRems.classList.remove('hidden');
                     contentTasks.classList.add('hidden');
                     if (addBtnFab) addBtnFab.classList.add('hidden');
+                    if (addRemFab) addRemFab.classList.remove('hidden');
                 }
             }
 
@@ -3638,9 +3685,7 @@
             }
 
             // ================= REMINDERS LOGIC =================
-            function populateReminderDropdown() {
-                const select = document.getElementById('reminder-site');
-                if (!select) return;
+            function openAddReminderSheet() {
                 let placeOptions = '<option value="">No specific site</option>';
                 let allPlacesSet = new Set();
                 for (const cat in clientsData) {
@@ -3651,7 +3696,37 @@
                         }
                     });
                 }
-                select.innerHTML = placeOptions;
+                
+                showBottomSheet(`
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-black text-slate-800">Create Reminder</h3>
+                        <button onclick="closeBottomSheet()" class="text-xl text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Reminder Title</label>
+                            <input type="text" id="reminder-title" placeholder="e.g. Call back regarding pricing" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Date & Time</label>
+                            <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all shadow-sm relative">
+                                <input type="datetime-local" id="reminder-datetime" class="w-full bg-transparent pl-3 pr-8 py-3 text-[13px] font-bold text-slate-800 outline-none date-time-input">
+                                <i class="fa-regular fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Related Site</label>
+                            <select id="reminder-site" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-600">
+                                ${placeOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1 ml-1">Notes</label>
+                            <textarea id="reminder-notes" rows="3" placeholder="Add any details..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-[13px] font-medium outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none text-slate-800"></textarea>
+                        </div>
+                    </div>
+                    <button onclick="saveReminder()" class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black uppercase tracking-widest text-xs active:scale-95 transition-transform shadow-lg shadow-indigo-200">Save Reminder</button>
+                `);
             }
 
             function saveReminder() {
@@ -3685,12 +3760,10 @@
 
                 tasksReminders.unshift({ id: id, title: title, type: 'Reminder', priority: 'Medium', status: 'pending', date: dateVal, time: timeVal, placeName: placeName, notes: notes });
                 
-                titleInput.value = '';
-                if(notesInput) notesInput.value = '';
-                
                 showToast("Reminder Saved!");
                 renderRemindersList();
                 renderDashboardPlanning();
+                closeBottomSheet();
             }
 
             function renderRemindersList() {
@@ -3706,11 +3779,11 @@
                 list.innerHTML = reminders.map(r => {
                     let reminderHtml = '';
                     if (r.date || r.time) {
-                        reminderHtml = `<div class="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-amber-500"><i class="fa-regular fa-clock"></i> ${r.date || ''} ${r.time || ''}</div>`;
+                        reminderHtml = `<div class="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-blue-500"><i class="fa-regular fa-clock"></i> ${r.date || ''} ${r.time || ''}</div>`;
                     }
                     return `
                     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-start gap-4 mb-3" id="reminder-item-${r.id}">
-                        <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex flex-col items-center justify-center shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex flex-col items-center justify-center shrink-0">
                             <i class="fa-regular fa-bell"></i>
                         </div>
                         <div class="flex-1 min-w-0">
